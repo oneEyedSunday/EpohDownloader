@@ -1,4 +1,5 @@
 ﻿using System;
+using EpohScraper.Helpers;
 
 namespace EpohScraper
 {
@@ -6,7 +7,8 @@ namespace EpohScraper
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            "scripts/produce.sh".BashRunScriptFileSync();
+            "scripts/produce.sh".BashRunScriptFileAsync();
         }
     }
 }
