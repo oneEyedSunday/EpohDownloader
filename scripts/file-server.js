@@ -23,12 +23,13 @@ const server = http.createServer(async function(req, res) {
   console.info(`[+] Received query for ${req.url}`);
 
   try {
+    console.info('Query', optsFromQuery(req.url));
     const filePath = findMusicPath(optsFromQuery(req.url));
     confirmPath(filePath);
     try {
       const rawData = await Promisify(fs.readFile)(filePath);
       const [_, ...extension] = path.extname(filePath);
-      res.setHeader('Content-Type', extension.join(''));
+      // res.setHeader('Content-Type', extension.join(''));
       return res.end(rawData);
     } catch (err) {
       res.statusCode = 500;
@@ -40,6 +41,8 @@ const server = http.createServer(async function(req, res) {
   }
 });
 
+server.on('clientError', err => console.error(err.message));
+
 function findMusicPath({ artist, album, song }) {
   // returns path to music
   return path.join(root, artist, album, song);
@@ -47,7 +50,7 @@ function findMusicPath({ artist, album, song }) {
 
 function optsFromQuery(candidate) {
   const url = candidate.split('/')[1];
-  const searchParams = new URLSearchParams(url)
+  const searchParams = new URLSearchParams(url);
 
   const [ artist, album, song ] = [searchParams.get('artist'), searchParams.get('album'), searchParams.get('song')];
   return {
