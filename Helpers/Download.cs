@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using static System.Console;
@@ -80,14 +81,68 @@ namespace EpohScraper.Helpers
             }
         }
 
+        private static bool TryDownloadRemoteFile(string url, string path)
+        {
+            using (var _webClient = new WebClient())
+            {
+                try
+                {
+                    _webClient.DownloadProgressChanged += (sender, e) => WriteLine($"Progress {e.ProgressPercentage}, Completed: {e.BytesReceived} Left: {e.TotalBytesToReceive - e.BytesReceived}");
+                    _webClient.DownloadFileCompleted += (sender, e) => Console.WriteLine($"Finished Completely: {e.Cancelled}");
+                    _webClient.DownloadFileAsync(new Uri(url), path);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    WriteLine($"[-] A(n) {ex.GetType().Name} Error Occured while downloading async remote file from {url}: {ex.Message}");
+                    return false;
+                }
+            }
+        }
+
+        private static async Task DownloadRemoteFileAsync(string uri, string path)
+        {
+            using(var _webClient = new WebClient())
+            {
+                try
+                {
+                    _webClient.DownloadProgressChanged += (sender, e) =>
+                    {
+                        if (e.ProgressPercentage % 10 == 0 && e.ProgressPercentage < 100)
+                            WriteLine($"Progress {e.ProgressPercentage}, Completed: {e.BytesReceived} Left: {e.TotalBytesToReceive - e.BytesReceived}");
+                    };
+                    _webClient.DownloadFileCompleted += (sender, e) => Console.WriteLine($"Finished Completely: {!e.Cancelled}");
+                    await _webClient.DownloadFileTaskAsync(new Uri(uri), path);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[-] A(n) {ex.GetType().Name} Error Occured while downloading remote file from {uri}: {ex.Message}");
+                }
+            }
+        }
+
+        private static string GetFileName(string url)
+        {
+            string[] _splitByParams = url.Split("=");
+            if (_splitByParams.Length > 0 && _splitByParams[_splitByParams.Length - 1].EndsWith(".mp3"))
+                return _splitByParams[_splitByParams.Length - 1];
+            return url;
+        }
+
         public static Task DownloadFiles(string[] urls)
         {
             List<Task> downloads = new List<Task>();
 
-            foreach(var url in urls)
-                downloads.Add(Task.FromResult<bool>(TryDownloadFile(url)));
+            foreach (var url in urls)
+            {
+                WriteLine($"[+] Will save {url} to {GetFileName(url)}");
+                //downloads.Add(TryDownloadRemoteFile(url, "/Users/ispoa/Downloads/EpohScraper/" + GetFileName(url));
+                downloads.Add(DownloadRemoteFileAsync(url, "/Users/ispoa/Downloads/EpohScraper/" + GetFileName(url)));
+            }
+
 
             return Task.WhenAll(downloads);
+
         }
     }
 }
