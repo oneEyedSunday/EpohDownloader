@@ -1,0 +1,25 @@
+{
+	"extends": "strongloop",
+	"parserOptions": {
+		"ecmaVersion": 9
+	},
+	"rules": {
+		"max-len": [
+			1,
+			120,
+			8
+		],
+		"comma-dangle": [
+			"error",
+			"never"
+		],
+		"no-console": 1
+	},
+	"env": {
+		"mocha": true,
+		"es6": true
+	},
+	"globals": {
+		"debug": true
+	}
+}

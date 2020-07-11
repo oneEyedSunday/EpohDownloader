@@ -1,0 +1,32 @@
+{
+  "version": "0.0.1",
+  "description": "Scrape links to content on Epoh.ng",
+  "scripts": {
+    "lint": "node node_modules/eslint/bin/eslint.js src --config ./.eslintrc.json",
+    "lint:fix": "npm run lint -- --fix",
+    "start": "npm run scrape-links",
+    "scrape-links": "node src/epoh.js",
+    "test": "echo 'No Tests yet'",
+    "update-webdrivers": "node_modules/webdriver-manager/bin/webdriver-manager update",
+    "webdriver-standalone": "node_modules/webdriver-manager/bin/webdriver-manager start --standalone"
+  },
+  "private": true,
+  "dependencies": {
+    "chromedriver": "^83.0.1",
+    "fast-html-parser": "^1.0.1",
+    "lodash": "^4.17.19",
+    "selenium-webdriver": "^4.0.0-alpha.7",
+    "webdriver-manager": "^12.1.7"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "eslint": "^7.4.0",
+    "eslint-config-strongloop": "^2.1.0",
+    "husky": "^4.2.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  }
+}
