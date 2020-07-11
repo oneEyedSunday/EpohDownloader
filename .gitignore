@@ -1,2 +1,5 @@
 bin/
 obj/
+scraper/node_modules
+**/*.mp3
+**/.DS_Store
