@@ -111,9 +111,9 @@ namespace EpohScraper.Helpers
                     _webClient.DownloadProgressChanged += (sender, e) =>
                     {
                         if (e.ProgressPercentage % 10 == 0 && e.ProgressPercentage < 100)
-                            WriteLine($"[+] { e.ProgressPercentage}% of { e.TotalBytesToReceive / 1024 / 1024} MB");
+                            WriteLine($"[+] Remote {uri} { e.ProgressPercentage}% of { e.TotalBytesToReceive / 1024 / 1024} MB");
                     };
-                    _webClient.DownloadFileCompleted += (sender, e) => Console.WriteLine($"[+] Downloaded Successfully: {(!e.Cancelled ? "Yes" : "No")}");
+                    _webClient.DownloadFileCompleted += (sender, e) => Console.WriteLine($"[+] Downloaded file from ${uri} Successfully: {(!e.Cancelled ? "Yes" : "No")}");
                     await _webClient.DownloadFileTaskAsync(new Uri(uri), path);
                 }
                 catch (Exception ex)
