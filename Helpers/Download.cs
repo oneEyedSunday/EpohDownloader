@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using EpohScraper.Models;
 using static System.Console;
 
 namespace EpohScraper.Helpers
@@ -143,6 +144,22 @@ namespace EpohScraper.Helpers
 
             return Task.WhenAll(downloads);
 
+        }
+
+        public static Task DownloadAlbum(MediaEntity media)
+        {
+            string downloadDir = Path.Join("/Users/ispoa/Downloads/EpohScraper", media.Artist, media.Album);
+            TryCreateDirectory(downloadDir); // TODO (oneeyedsunday) handle possible error
+            List<Task> downloads = new List<Task>();
+
+            foreach(var url in media.GetUrls())
+            {
+                string fullPath = Path.Join(downloadDir, GetFileName(url));
+                WriteLine($"[+] Will save {url} to {fullPath}");
+                downloads.Add(DownloadRemoteFileAsync(url, fullPath));
+            }
+
+            return Task.WhenAll(downloads);
         }
     }
 }
