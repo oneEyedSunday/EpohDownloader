@@ -1,2 +1,5 @@
 bin/
 obj/
+*.mp3
+.vs/
+**/.DS_Store
