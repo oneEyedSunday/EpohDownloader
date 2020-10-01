@@ -87,8 +87,8 @@ namespace EpohScraper.Helpers
             {
                 try
                 {
-                    _webClient.DownloadProgressChanged += (sender, e) => WriteLine($"Progress {e.ProgressPercentage}, Completed: {e.BytesReceived} Left: {e.TotalBytesToReceive - e.BytesReceived}");
-                    _webClient.DownloadFileCompleted += (sender, e) => Console.WriteLine($"Finished Completely: {e.Cancelled}");
+                    _webClient.DownloadProgressChanged += (sender, e) => WriteLine($"[+] {e.ProgressPercentage}% of {e.TotalBytesToReceive / 1024 / 1024} MB");
+                    _webClient.DownloadFileCompleted += (sender, e) => Console.WriteLine($"[+] Downloaded Successfully: {(!e.Cancelled ? "Yes" : "No")}");
                     _webClient.DownloadFileAsync(new Uri(url), path);
                     return true;
                 }
@@ -109,9 +109,9 @@ namespace EpohScraper.Helpers
                     _webClient.DownloadProgressChanged += (sender, e) =>
                     {
                         if (e.ProgressPercentage % 10 == 0 && e.ProgressPercentage < 100)
-                            WriteLine($"Progress {e.ProgressPercentage}, Completed: {e.BytesReceived} Left: {e.TotalBytesToReceive - e.BytesReceived}");
+                            WriteLine($"[+] { e.ProgressPercentage}% of { e.TotalBytesToReceive / 1024 / 1024} MB");
                     };
-                    _webClient.DownloadFileCompleted += (sender, e) => Console.WriteLine($"Finished Completely: {!e.Cancelled}");
+                    _webClient.DownloadFileCompleted += (sender, e) => Console.WriteLine($"[+] Downloaded Successfully: {(!e.Cancelled ? "Yes" : "No")}");
                     await _webClient.DownloadFileTaskAsync(new Uri(uri), path);
                 }
                 catch (Exception ex)
