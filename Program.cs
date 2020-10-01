@@ -24,6 +24,10 @@ namespace EpohScraper
             //    //"http://localhost:3000/?artist=Guards&album=" + HttpUtility.UrlEncode("In Guards We Trust") + "&song=" + HttpUtility.UrlEncode("07 I Know It's You.mp3")
             //});
 
+            string rootDownloadDir = args.Length > 1 ? args[1] : "~/Downloads/EpohScraper";
+
+            DownloadHelpers.SetRootDownloadPath(rootDownloadDir);
+
             var media = new MediaEntity("Future", "Honest", new string[] {
             });
             var _downloadTasks = DownloadHelpers.DownloadAlbum(media);

@@ -11,6 +11,7 @@ namespace EpohScraper.Helpers
 {
     public static class DownloadHelpers
     {
+        static string RootPath = "";
         public static bool TryCreateDirectory(string directoryPath)
         {
             try
@@ -149,7 +150,10 @@ namespace EpohScraper.Helpers
         public static Task DownloadAlbum(MediaEntity media)
         {
             string downloadDir = Path.Join("/Users/ispoa/Downloads/EpohScraper", media.Artist, media.Album);
-            TryCreateDirectory(downloadDir); // TODO (oneeyedsunday) handle possible error
+            if (!TryCreateDirectory(downloadDir)) // TODO (oneeyedsunday) handle possible error
+            {
+                throw new IOException($"Failed to create directory: {downloadDir}");
+            }
             List<Task> downloads = new List<Task>();
 
             foreach(var url in media.GetUrls())
@@ -160,6 +164,12 @@ namespace EpohScraper.Helpers
             }
 
             return Task.WhenAll(downloads);
+        }
+
+        public static void SetRootDownloadPath(string rootPath)
+        {
+            RootPath = Path.GetFullPath(QualifyPath(rootPath));
+            Console.WriteLine($"[+] Base download path set to {RootPath}");
         }
     }
 }
