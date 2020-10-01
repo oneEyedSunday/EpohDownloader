@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using EpohScraper.Models;
 using static System.Console;
+using System.Threading;
 
 namespace EpohScraper.Helpers
 {
@@ -102,7 +103,7 @@ namespace EpohScraper.Helpers
             }
         }
 
-        private static async Task DownloadRemoteFileAsync(string uri, string path)
+        private static async Task DownloadRemoteFileAsync(string uri, string path, CancellationToken cts = default(CancellationToken))
         {
             using(var _webClient = new WebClient())
             {
@@ -110,11 +111,23 @@ namespace EpohScraper.Helpers
                 {
                     _webClient.DownloadProgressChanged += (sender, e) =>
                     {
+                        if (cts.IsCancellationRequested)
+                        {
+                            Console.WriteLine("Requesting for Cancellation of Download.");
+                            _webClient.CancelAsync();
+                        }
                         if (e.ProgressPercentage % 10 == 0 && e.ProgressPercentage < 100)
                             WriteLine($"[+] Remote {uri} { e.ProgressPercentage}% of { e.TotalBytesToReceive / 1024 / 1024} MB");
                     };
-                    _webClient.DownloadFileCompleted += (sender, e) => Console.WriteLine($"[+] Downloaded file from ${uri} Successfully: {(!e.Cancelled ? "Yes" : "No")}");
+                    _webClient.DownloadFileCompleted += (sender, e) => {
+                        if (!e.Cancelled)
+                            Console.WriteLine($"[+] Downloaded file from {uri} Successfully");
+                    };
                     await _webClient.DownloadFileTaskAsync(new Uri(uri), path);
+                }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine($"[-] Download for {uri} cancelled");
                 }
                 catch (Exception ex)
                 {
@@ -147,7 +160,7 @@ namespace EpohScraper.Helpers
 
         }
 
-        public static Task DownloadAlbum(MediaEntity media)
+        public static Task DownloadAlbum(MediaEntity media, CancellationToken cts = default(CancellationToken))
         {
             string downloadDir = Path.Join("/Users/ispoa/Downloads/EpohScraper", media.Artist, media.Album);
             if (!TryCreateDirectory(downloadDir)) // TODO (oneeyedsunday) handle possible error
@@ -160,7 +173,7 @@ namespace EpohScraper.Helpers
             {
                 string fullPath = Path.Join(downloadDir, GetFileName(url));
                 WriteLine($"[+] Will save {url} to {fullPath}");
-                downloads.Add(DownloadRemoteFileAsync(url, fullPath));
+                downloads.Add(DownloadRemoteFileAsync(url, fullPath, cts));
             }
 
             return Task.WhenAll(downloads);

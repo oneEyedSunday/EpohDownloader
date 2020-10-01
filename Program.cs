@@ -3,7 +3,7 @@ using System.Web;
 using System.Threading.Tasks;
 using EpohScraper.Helpers;
 using EpohScraper.Models;
-
+using System.Threading;
 
 namespace EpohScraper
 {
@@ -36,11 +36,13 @@ namespace EpohScraper
 
             foreach (string song in songs.Trim().Split(new char[] { ',' }))
             {
+                // TODO (oneeyedsunday) handle backpressure
                 media.AddDownloadUrl("http://localhost:3000/?artist=Future&album=Honest&song=" + HttpUtility.UrlEncode(song.Trim()));
             }
 
+            CancellationTokenSource cancellationToken = new CancellationTokenSource();
 
-            var _downloadTasks = DownloadHelpers.DownloadAlbum(media);
+            var _downloadTasks = DownloadHelpers.DownloadAlbum(media, cancellationToken.Token);
 
             _downloadTasks.GetAwaiter().OnCompleted(() =>
             {
